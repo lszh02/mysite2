@@ -16,6 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from web2 import views
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('depart/list', views.depart_list),
 ]
