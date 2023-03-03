@@ -3,6 +3,8 @@ from django.db import models
 
 class Department(models.Model):
     """部门表"""
+    def __str__(self):
+        return self.title
     # id = models.BigAutoField(verbose_name='id',primary_key=True)
     title = models.CharField(verbose_name='标题', max_length=32)
 
@@ -24,6 +26,6 @@ class UserInfo(models.Model):
     # to 关联的表
     # to_field 关联的字段
     # on_delete 级联删除
-    depart = models.ForeignKey(to='Department', to_field='id', on_delete=models.CASCADE)
+    depart = models.ForeignKey(verbose_name='部门 ', to='Department', to_field='id', on_delete=models.CASCADE)
     # 置空
     # depart = models.ForeignKey(to='Department', to_field='id', null=True, blank=True, on_delete=models.SET_NULL)
