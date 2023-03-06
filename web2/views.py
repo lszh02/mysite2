@@ -102,3 +102,58 @@ def user_edit(request, nid):
 def user_delete(request, nid):
     models.UserInfo.objects.filter(id=nid).delete()
     return redirect('/user/list/')
+
+
+def pretty_list(request):
+    """靓号列表"""
+    queryset = models.PrettyNum.objects.all().order_by('-level')
+    return render(request, 'pretty_list.html', {'queryset': queryset})
+
+
+from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
+
+
+class PrettyModelForm(forms.ModelForm):
+    # 前端提交数据验证,方式一：字段+正则
+    mobile = forms.CharField(
+        label='手机号',
+        validators=[RegexValidator(r'^1[3-9]\d{9}$', '手机号格式错误'), ],
+    )
+
+    class Meta:
+        model = models.PrettyNum
+        # fields = ['mobile', 'price', 'level', 'status']
+        fields = '__all__'
+        # exclude = ['level']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for name, field in self.fields.items():
+            if name == "password":
+                field.widget = forms.PasswordInput()
+                # continue
+            field.widget.attrs = {"class": "form-control"}
+
+    # 前端数据验证,方式二：钩子方法，clean_字段名
+    # def clean_mobile(self):
+    #     # 获取用户输入的数据
+    #     input_mobile = self.cleaned_data['mobile']
+    #     # 验证不通过
+    #     if len(input_mobile) != 11:
+    #         raise ValidationError('格式错误')
+    #     # 验证通过
+    #     return input_mobile
+
+def pretty_add(request):
+    """添加靓号"""
+    if request.method == 'GET':
+        form = PrettyModelForm()
+        return render(request, 'pretty_add.html', {'form': form})
+
+    form = PrettyModelForm(data=request.POST)
+    if form.is_valid():
+        form.save()
+        return redirect('/pretty/list/')
+    return render(request, 'pretty_add.html', {'form': form})

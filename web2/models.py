@@ -3,8 +3,10 @@ from django.db import models
 
 class Department(models.Model):
     """部门表"""
+
     def __str__(self):
         return self.title
+
     # id = models.BigAutoField(verbose_name='id',primary_key=True)
     title = models.CharField(verbose_name='标题', max_length=32)
 
@@ -30,3 +32,22 @@ class UserInfo(models.Model):
     depart = models.ForeignKey(verbose_name='部门 ', to='Department', to_field='id', on_delete=models.CASCADE)
     # 置空
     # depart = models.ForeignKey(to='Department', to_field='id', null=True, blank=True, on_delete=models.SET_NULL)
+
+
+class PrettyNum(models.Model):
+    """靓号表"""
+    mobile = models.CharField(verbose_name='手机号', max_length=11)
+    # 想要允许为空：null =True,blank=True
+    price = models.IntegerField(verbose_name='价格', default=0)
+    level_choices = (
+        (1, '1级'),
+        (2, '2级'),
+        (3, '3级'),
+        (4, '5级')
+    )
+    level = models.SmallIntegerField(verbose_name='等级', choices=level_choices, default=1)
+    status_choices = (
+        (1, '已占用'),
+        (2, '未占用')
+    )
+    status = models.SmallIntegerField(verbose_name='状态', choices=status_choices, default=2)
