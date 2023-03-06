@@ -2,6 +2,8 @@ from django import forms
 from django.shortcuts import render, redirect
 
 from web2 import models
+from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
 
 
 def depart_list(request):
@@ -110,10 +112,6 @@ def pretty_list(request):
     return render(request, 'pretty_list.html', {'queryset': queryset})
 
 
-from django.core.validators import RegexValidator
-from django.core.exceptions import ValidationError
-
-
 class PrettyModelForm(forms.ModelForm):
     # 前端提交数据验证,方式一：字段+正则
     mobile = forms.CharField(
@@ -134,17 +132,21 @@ class PrettyModelForm(forms.ModelForm):
             if name == "password":
                 field.widget = forms.PasswordInput()
                 # continue
-            field.widget.attrs = {"class": "form-control"}
+            field.widget.attrs = {"class": "form-control", "placeholder": field.label}
 
     # 前端数据验证,方式二：钩子方法，clean_字段名
-    # def clean_mobile(self):
-    #     # 获取用户输入的数据
-    #     input_mobile = self.cleaned_data['mobile']
-    #     # 验证不通过
-    #     if len(input_mobile) != 11:
-    #         raise ValidationError('格式错误')
-    #     # 验证通过
-    #     return input_mobile
+    def clean_mobile(self):
+        # 获取用户输入的数据
+        input_mobile = self.cleaned_data['mobile']
+        exists = models.PrettyNum.objects.filter(mobile=input_mobile).exists
+        if exists:
+            raise ValidationError('手机号已存在！')
+        # 验证不通过
+        if len(input_mobile) != 11:
+            raise ValidationError('格式错误')
+        # 验证通过
+        return input_mobile
+
 
 def pretty_add(request):
     """添加靓号"""
@@ -157,3 +159,54 @@ def pretty_add(request):
         form.save()
         return redirect('/pretty/list/')
     return render(request, 'pretty_add.html', {'form': form})
+
+
+class PrettyEditModelForm(forms.ModelForm):
+    mobile = forms.CharField(
+        disabled=True,
+        label='手机号',
+        # validators=[RegexValidator(r'^1[3-9]\d{9}$', '手机号格式错误'), ],
+    )
+
+    class Meta:
+        model = models.PrettyNum
+        fields = '__all__'
+        exclude = ['level']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for name, field in self.fields.items():
+            if name == "password":
+                field.widget = forms.PasswordInput()
+                # continue
+            field.widget.attrs = {"class": "form-control", "placeholder": field.label}
+
+    # 前端数据验证,方式二：钩子方法，clean_字段名
+    def clean_mobile(self):
+        # 获取用户输入的数据
+        input_mobile = self.cleaned_data['mobile']
+        # 当前编辑的那一行的ID:self.instance.pk
+        # exclude:排除自己这一条
+        exists = models.PrettyNum.objects.exclude(id=self.instance.pk).filter(mobile=input_mobile).exists()
+        if exists:
+            raise ValidationError('手机号已存在！')
+        # 验证不通过
+        # if len(input_mobile) != 11:
+        #     raise ValidationError('格式错误')
+        # 验证通过
+        return input_mobile
+
+
+def pretty_edit(request, nid):
+    """编辑靓号"""
+    row_obj = models.PrettyNum.objects.filter(id=nid).first()
+    if request.method == 'GET':
+        form = PrettyEditModelForm(instance=row_obj)
+        return render(request, 'pretty_edit.html', {'form': form})
+
+    form = PrettyEditModelForm(data=request.POST, instance=row_obj)
+    if form.is_valid():
+        form.save()
+        return redirect('/pretty/list/')
+    return render(request, 'pretty_edit.html', {'form': form})
