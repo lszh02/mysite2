@@ -108,8 +108,14 @@ def user_delete(request, nid):
 
 def pretty_list(request):
     """靓号列表"""
-    queryset = models.PrettyNum.objects.all().order_by('-level')
-    return render(request, 'pretty_list.html', {'queryset': queryset})
+    query_dict = {}
+    # 接收搜索参数q
+    search_data = request.GET.get('q', '')
+    if search_data:
+        query_dict['mobile__contains'] = search_data
+
+    queryset = models.PrettyNum.objects.filter(**query_dict).order_by('-level')
+    return render(request, 'pretty_list.html', {'queryset': queryset, 'search_data':search_data})
 
 
 class PrettyModelForm(forms.ModelForm):
@@ -210,3 +216,8 @@ def pretty_edit(request, nid):
         form.save()
         return redirect('/pretty/list/')
     return render(request, 'pretty_edit.html', {'form': form})
+
+
+def pretty_delete(request, nid):
+    models.PrettyNum.objects.filter(id=nid).first().delete()
+    return redirect('/pretty/list/')
