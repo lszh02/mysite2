@@ -44,7 +44,7 @@
                             <td>{{ obj.depart.title }}</td>
                             <td>
                                 <a href="/user/{{ obj.id }}/edit/" class="btn btn-primary">编辑</a>
-                                <a href="/user/delete/?nid={1{ obj.id }}" class="btn btn-danger">删除</a>
+                                <a href="/user/{{ obj.id }}/delete/" class="btn btn-danger">删除</a>
                             </td>
                         </tr>
                     {% endfor %}
