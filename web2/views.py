@@ -1,9 +1,10 @@
 from django import forms
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
-
-from web2 import models
 from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
+
+from web2 import models
 
 
 def depart_list(request):
@@ -115,7 +116,12 @@ def pretty_list(request):
         query_dict['mobile__contains'] = search_data
 
     queryset = models.PrettyNum.objects.filter(**query_dict).order_by('-level')
-    return render(request, 'pretty_list.html', {'queryset': queryset, 'search_data':search_data})
+
+    # 分页
+    page_num = request.GET.get('page', 1)
+    paginator = Paginator(queryset, 10)
+    c_page = paginator.page(int(page_num))
+    return render(request, 'pretty_list.html', locals())
 
 
 class PrettyModelForm(forms.ModelForm):
@@ -142,15 +148,15 @@ class PrettyModelForm(forms.ModelForm):
 
     # 前端数据验证,方式二：钩子方法，clean_字段名
     def clean_mobile(self):
-        # 获取用户输入的数据
+        # 获取用户输入的所有数据：cleaned_data
         input_mobile = self.cleaned_data['mobile']
-        exists = models.PrettyNum.objects.filter(mobile=input_mobile).exists
+        exists = models.PrettyNum.objects.filter(mobile=input_mobile).exists()
         if exists:
             raise ValidationError('手机号已存在！')
-        # 验证不通过
+        # 验证不通过，前端报错
         if len(input_mobile) != 11:
             raise ValidationError('格式错误')
-        # 验证通过
+        # 验证通过,返回用户输入的数据
         return input_mobile
 
 
@@ -168,11 +174,13 @@ def pretty_add(request):
 
 
 class PrettyEditModelForm(forms.ModelForm):
+    # 前端提交数据验证,方式一：字段+正则
     mobile = forms.CharField(
         disabled=True,
         label='手机号',
         # validators=[RegexValidator(r'^1[3-9]\d{9}$', '手机号格式错误'), ],
     )
+    # mobile = forms.CharField(disabled=True, label='手机号')  # 前端显示，但不可更改
 
     class Meta:
         model = models.PrettyNum

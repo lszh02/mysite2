@@ -11,7 +11,8 @@
                 <div style="float: right;width: 300px">
                     <form method="get">
                         <div class="input-group">
-                            <input type="text" name="q" class="form-control" placeholder="Search for..." value="{{ search_data }}">
+                            <input type="text" name="q" class="form-control" placeholder="Search for..."
+                                   value="{{ search_data }}">
                             <span class="input-group-btn">
                              <button class="btn btn-default" type="submit">
                                  <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
@@ -41,7 +42,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for obj in queryset %}
+                    {% for obj in c_page %}
                         <tr>
                             <th>{{ obj.id }}</th>
                             <td>{{ obj.mobile }}</td>
@@ -59,5 +60,26 @@
                 </table>
             </div>
         </div>
+        <ul class="pagination">
+            {% if c_page.has_previous %}
+                <li><a href="?page={{ c_page.previous_page_number }}">上一页</a></li>
+            {% else %}
+                <li class="disabled"><a href="#" aria-label="Previous"><span aria-hidden="true">上一页</span></a></li>
+            {% endif %}
+
+            {% for p_num in paginator.page_range %}
+                {% if p_num == c_page.number %}
+                    <li class="active"><a href="#">{{ p_num }} <span class="sr-only">(current)</span></a></li>
+                {% else %}
+                    <li><a href="?page={{ p_num }}">{{ p_num }}</a></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if c_page.has_next %}
+                <li><a href="?page={{ c_page.next_page_number }}">上一页</a></li>
+            {% else %}
+                <li class="disabled"><a href="#" aria-label="Previous"><span aria-hidden="true">下一页</span></a></li>
+            {% endif %}
+        </ul>
     </div>
 {% endblock %}
