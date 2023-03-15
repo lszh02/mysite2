@@ -31,15 +31,19 @@
 {% endblock %}
 
 {% block js %}
-    <script rel="stylesheet" src="{% static 'plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js' %}"></script>
-    <script rel="stylesheet" src="{% static 'plugins/bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js' %}"></script>
+    <script rel="stylesheet"
+            src="{% static 'plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js' %}"></script>
+    <script rel="stylesheet"
+            src="{% static 'plugins/bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js' %}"></script>
     <script>
         $(function () {
             $('#id_create_time').datetimepicker({
                 format: 'yyyy-mm-dd',
                 startDate: '0',
                 language: 'zh-CN',
-                autoclose: true
+                autoclose: true,
+                minView: 2,
+                todayBtn: 'linked'
             });
 
         })
