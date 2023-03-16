@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 
 from web2 import models
 from web2.urls.bootstrap import BootstrapModelForm
+from web2.urls.encrypt import md5
 
 
 class UserModelForm(BootstrapModelForm):
@@ -69,3 +70,28 @@ class PrettyEditModelForm(BootstrapModelForm):
         #     raise ValidationError('格式错误')
         # 验证通过
         return input_mobile
+
+
+class AdminModelForm(BootstrapModelForm):
+    confirm_password = forms.CharField(
+        label='确认密码',
+        widget=forms.PasswordInput(render_value=True)
+    )
+
+    class Meta:
+        model = models.Admin
+        fields = '__all__'
+        widgets = {
+            'password': forms.PasswordInput(render_value=True)  # 密码输入错误时，保留输入
+        }
+
+    def clean_password(self):
+        pwd = self.cleaned_data.get('password')
+        return md5(pwd)
+
+    def clean_confirm_password(self):
+        pwd = self.cleaned_data.get('password')
+        confirm = md5(self.cleaned_data.get('confirm_password'))
+        if confirm != pwd:
+            raise ValidationError('密码不一致')
+        return confirm

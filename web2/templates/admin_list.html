@@ -3,15 +3,15 @@
     <div>
         <div class="container">
             <div style="margin-bottom: 10px" class="clearfix">
-                <a href="/pretty/add/" class="btn btn-success">
+                <a href="/admin/add/" class="btn btn-success">
                     <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
-                    新建靓号
+                    新建管理员
                 </a>
 
                 <div style="float: right;width: 300px">
                     <form method="get">
                         <div class="input-group">
-                            <input type="text" name="q" class="form-control" placeholder="Search for..."
+                            <input type="text" name="q" class="form-control" placeholder="请输入关键字"
                                    value="{{ search_data }}">
                             <span class="input-group-btn">
                              <button class="btn btn-default" type="submit">
@@ -26,7 +26,7 @@
                 <!-- Default panel contents -->
                 <div class="panel-heading">
                     <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
-                    靓号列表
+                    管理员列表
                 </div>
 
                 <!-- Table -->
@@ -34,21 +34,16 @@
                     <thead>
                     <tr>
                         <th>ID</th>
-                        <th>号码</th>
-                        <th>价格</th>
-                        <th>级别</th>
-                        <th>状态</th>
-                        <th>操作</th>
+                        <th>用户名</th>
+                        <th>密码</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for obj in c_page %}
                         <tr>
                             <th>{{ obj.id }}</th>
-                            <td>{{ obj.mobile }}</td>
-                            <td>{{ obj.price }}</td>
-                            <td>{{ obj.get_level_display }}</td>
-                            <td>{{ obj.get_status_display }}</td>
+                            <td>{{ obj.username }}</td>
+                            <td>********</td>
                             <td>
                                 <a href="/pretty/{{ obj.id }}/edit/" class="btn btn-primary">编辑</a>
                                 <a href="/pretty/{{ obj.id }}/delete/" class="btn btn-danger">删除</a>
@@ -81,6 +76,5 @@
                 {% endif %}
             </ul>
         </div>
-
     </div>
 {% endblock %}
