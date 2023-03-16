@@ -5,6 +5,7 @@ from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
 
 from web2 import models
+from web2.urls.bootstrap import BootstrapModelForm
 
 
 def depart_list(request):
@@ -50,22 +51,11 @@ def user_list(request):
     return render(request, 'user_list.html', {'queryset': queryset})
 
 
-class UserModelForm(forms.ModelForm):
+class UserModelForm(BootstrapModelForm):
     # name = forms.CharField(min_length=3, label="用户名")   重写字段，用于页面校验
     class Meta:
         model = models.UserInfo
         fields = ['name', 'password', 'age', 'salary', 'create_time', 'gender', 'depart']
-        # widgets = {'name':forms.TextInput(attrs={'class':"form-control"})}
-        # widgets = {'password': forms.PasswordInput(attrs={'class':"form-control"})}
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        for name, field in self.fields.items():
-            if name == "password":
-                field.widget = forms.PasswordInput()
-                # continue
-            field.widget.attrs = {"class": "form-control"}
 
 
 def user_add(request):
@@ -124,7 +114,7 @@ def pretty_list(request):
     return render(request, 'pretty_list.html', locals())
 
 
-class PrettyModelForm(forms.ModelForm):
+class PrettyModelForm(BootstrapModelForm):
     # 前端提交数据验证,方式一：字段+正则
     mobile = forms.CharField(
         label='手机号',
@@ -136,15 +126,6 @@ class PrettyModelForm(forms.ModelForm):
         # fields = ['mobile', 'price', 'level', 'status']
         fields = '__all__'
         # exclude = ['level']
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        for name, field in self.fields.items():
-            if name == "password":
-                field.widget = forms.PasswordInput()
-                # continue
-            field.widget.attrs = {"class": "form-control", "placeholder": field.label}
 
     # 前端数据验证,方式二：钩子方法，clean_字段名
     def clean_mobile(self):
@@ -173,28 +154,20 @@ def pretty_add(request):
     return render(request, 'pretty_add.html', {'form': form})
 
 
-class PrettyEditModelForm(forms.ModelForm):
+class PrettyEditModelForm(BootstrapModelForm):
     # 前端提交数据验证,方式一：字段+正则
     mobile = forms.CharField(
         disabled=True,
         label='手机号',
         # validators=[RegexValidator(r'^1[3-9]\d{9}$', '手机号格式错误'), ],
     )
+
     # mobile = forms.CharField(disabled=True, label='手机号')  # 前端显示，但不可更改
 
     class Meta:
         model = models.PrettyNum
         fields = '__all__'
         exclude = ['level']
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        for name, field in self.fields.items():
-            if name == "password":
-                field.widget = forms.PasswordInput()
-                # continue
-            field.widget.attrs = {"class": "form-control", "placeholder": field.label}
 
     # 前端数据验证,方式二：钩子方法，clean_字段名
     def clean_mobile(self):
