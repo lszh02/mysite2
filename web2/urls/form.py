@@ -95,3 +95,9 @@ class AdminModelForm(BootstrapModelForm):
         if confirm != pwd:
             raise ValidationError('密码不一致')
         return confirm
+
+
+class AdminEditModelForm(BootstrapModelForm):
+    class Meta:
+        model = models.Admin
+        fields = ['username']

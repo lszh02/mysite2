@@ -42,5 +42,7 @@ urlpatterns = [
     # 管理员的管理
     path('admin/list/', admin.admin_list),
     path('admin/add/', admin.admin_add),
+    path('admin/<int:nid>/edit/', admin.admin_edit),
+    path('admin/<int:nid>/delete/', admin.admin_delete),
 
 ]

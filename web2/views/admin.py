@@ -1,7 +1,7 @@
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from web2 import models
-from web2.urls.form import AdminModelForm
+from web2.urls.form import AdminModelForm, AdminEditModelForm
 
 
 def admin_list(request):
@@ -33,3 +33,32 @@ def admin_add(request):
         form.save()
         return redirect('/admin/list/')
     return render(request, 'change.html', locals())
+
+
+def admin_edit(request, nid):
+    """编辑管理员"""
+    # row_obj得到对象或None
+    row_obj = models.Admin.objects.filter(id=nid).first()
+    if not row_obj:
+        error_msg = '数据不存在'
+        return render(request, 'error.html', locals())
+        # return redirect('/admin/list/')
+
+    title = '编辑管理员'
+
+    if request.method == 'GET':
+        form = AdminEditModelForm(instance=row_obj)
+        return render(request, 'change.html', locals())
+
+    form = AdminEditModelForm(data=request.POST, instance=row_obj)
+    if form.is_valid():
+        form.save()
+        return redirect('/admin/list/')
+
+    return render(request, 'change.html', locals())
+
+
+def admin_delete(request, nid):
+    """删除管理员"""
+    models.Admin.objects.filter(id=nid).delete()
+    return redirect('/admin/list/')
